@@ -2,3 +2,6 @@ django
 django-bootstrap5
 pillow
 django-admin-interface
+celery
+redis
+django-celery-beat
