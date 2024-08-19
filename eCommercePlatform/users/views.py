@@ -14,6 +14,7 @@ from django.db import transaction
 from .forms import UserRegisterForm, OrderForm, UserUpdateForm
 from products.models import Product
 from .models import Cart, CartItem, Order, OrderItem
+from .tasks import send_sms
 
 
 class RegisterView(View):
@@ -176,8 +177,9 @@ class CheckoutView(LoginRequiredMixin, FormView):
                 product.save()
 
             cart.cartitem_set.all().delete()
-
+        
         transaction.on_commit(lambda: messages.success(self.request, "Thank you for your order!"))
+        send_sms.delay(order.id)
 
         return render(self.request, "users/order_confirmation.html", {"order": order})
 

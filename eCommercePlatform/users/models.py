@@ -25,6 +25,7 @@ class Order(models.Model):
     order_date = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     full_name = models.CharField(max_length=70)
+    contact_no = models.CharField(max_length=13, null=True)
     address = models.CharField(max_length=250)
     city = models.CharField(max_length=15)
     state = models.CharField(max_length=15)

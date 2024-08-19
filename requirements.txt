@@ -5,3 +5,5 @@ django-admin-interface
 celery
 redis
 django-celery-beat
+twilio
+django-environ

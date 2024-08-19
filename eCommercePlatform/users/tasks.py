@@ -28,3 +28,24 @@ def send_daily_order_summary():
         recipient_list=[settings.ADMIN_EMAIL],
         fail_silently=False,
     )
+
+
+@shared_task
+def send_sms(order_id):
+    from twilio.rest import Client
+    from .models import Order
+
+    order = Order.objects.get(id=order_id)
+    order_items = order.orderitem_set.all()
+    order_summary = "ORDER DETAILS\n\nProduct \t\tQuantity\t\tTotal Price\n"
+    for item in order_items:
+        order_summary += (
+            f"{item.product.name}\t{item.quantity}\t{item.total_price} Rs.\n"
+        )
+
+    order_summary += f"\nTotal Bill: {order.total_price} Rs."
+
+    client = Client(settings.ACCOUNT_SSID, settings.AUTH_TOKEN)
+    message = client.messages.create(
+        from_=settings.TWILIO_NUMBER, body=order_summary, to=settings.SEND_SMS_TO
+    )

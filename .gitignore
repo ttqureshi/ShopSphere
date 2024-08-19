@@ -3,3 +3,4 @@ eCommercePlatform.pdf
 django-env
 *.pyc
 __pycache__/
+.env

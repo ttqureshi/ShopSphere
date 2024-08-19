@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,13 +21,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-1g)n41ey+a(bjm0hi9--u=u4npt2vm8duh^i13cjqg_3x6uxw1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+# Initialize environment variables
+env = environ.Env(DEBUG=(bool, False))
+
+# Explicitly specify the path to the .env file
+env.read_env(os.path.join(os.path.dirname(__file__), "..", ".env"))
+
+SECRET_KEY = env("SECRET_KEY")
+ACCOUNT_SSID = env("MY_ACCOUNT_SID")
+AUTH_TOKEN = env("TWILIO_AUTH_TOKEN")
+TWILIO_NUMBER = env("MY_TWILIO_NUMBER")
+SEND_SMS_TO = env("SEND_SMS_TO")
 
 
 # Application definition
@@ -155,7 +166,7 @@ from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     "send-daily-order-summary": {
         "task": "users.tasks.send_daily_order_summary",
-        "schedule": crontab(hour=0, minute=0),
+        "schedule": crontab(hour=13, minute=0),
     },
 }
 
@@ -164,7 +175,7 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_USE_TLS = True
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "m.tayyabtq@gmail.com"
-EMAIL_HOST_PASSWORD = "qpxsiavhefioxziv"
-DEFAULT_FROM_EMAIL = "m.tayyabtq@gmail.com"
-ADMIN_EMAIL = "youcannevermailme@gmail.com"
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+ADMIN_EMAIL = env("ADMIN_EMAIL")
