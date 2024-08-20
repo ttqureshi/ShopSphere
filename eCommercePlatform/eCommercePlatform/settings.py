@@ -39,6 +39,9 @@ AUTH_TOKEN = env("TWILIO_AUTH_TOKEN")
 TWILIO_NUMBER = env("MY_TWILIO_NUMBER")
 SEND_SMS_TO = env("SEND_SMS_TO")
 
+# Stripe API keys
+STRIPE_PUBLIC_KEY = env('STRIPE_PUBLIC_KEY')
+STRIPE_PRIVATE_KEY = env('STRIPE_PRIVATE_KEY')
 
 # Application definition
 
@@ -56,6 +59,7 @@ INSTALLED_APPS = [
     "django_bootstrap5",
     "rest_framework",
     "django_celery_beat",
+    "djstripe",
 ]
 
 MIDDLEWARE = [
@@ -69,6 +73,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "eCommercePlatform.urls"
+
+DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
+DJSTRIPE_WEBHOOK_VALIDATION = "retrieve_event"
+DJSTRIPE_USE_NATIVE_JSONFIELD = True
 
 TEMPLATES = [
     {
@@ -166,7 +174,7 @@ from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     "send-daily-order-summary": {
         "task": "users.tasks.send_daily_order_summary",
-        "schedule": crontab(hour=13, minute=0),
+        "schedule": crontab(hour=14, minute=23),
     },
 }
 

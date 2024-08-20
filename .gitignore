@@ -4,3 +4,4 @@ django-env
 *.pyc
 __pycache__/
 .env
+products.csv

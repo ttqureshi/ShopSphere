@@ -17,7 +17,11 @@ def send_daily_order_summary():
         for order in orders:
             summary += f"Order ID: {order.id}\n"
             summary += f"Customer Name: {order.full_name}\n"
-            summary += f"Total Amount: {order.total_price}\n"
+            for order_item in order.orderitem_set.all():
+                summary += f"\tItem: {order_item.product.name}\n\t"
+                summary += f"Unit Price: Rs. {order_item.product.price}\n\t"
+                summary += f"Quantity: {order_item.quantity}\n\n"
+            summary += f"Total Amount: Rs. {order_item.total_price}\n"
             summary += "------------------------------\n"
     mail_subject = "Daily Orders Summary"
 
@@ -40,10 +44,10 @@ def send_sms(order_id):
     order_summary = "ORDER DETAILS\n\nProduct \t\tQuantity\t\tTotal Price\n"
     for item in order_items:
         order_summary += (
-            f"{item.product.name}\t{item.quantity}\t{item.total_price} Rs.\n"
+            f"{item.product.name} \t{item.quantity} \t Rs.{item.total_price}\n"
         )
 
-    order_summary += f"\nTotal Bill: {order.total_price} Rs."
+    order_summary += f"\nTotal Bill: Rs. {order.total_price}"
 
     client = Client(settings.ACCOUNT_SSID, settings.AUTH_TOKEN)
     message = client.messages.create(
