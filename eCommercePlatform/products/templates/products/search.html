@@ -12,28 +12,31 @@ Search - {{ search_query }}
             <h5>Categories</h5>
             <ul class="list-group">
                 <li class="list-group-item {% if not selected_category %}active-category{% endif %}">
-                    <a style="color: green;" href="{% url 'products:products-listing' %}">All</a>
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?search={{ search_query }}">All</a>
                 </li>
                 <li class="list-group-item {% if selected_category == 'Home and Lifestyle' %}active-category{% endif %}">
-                    <a style="color: green;" href="{% url 'products:products-listing' %}?category=Home and Lifestyle">Home & Lifestyle</a>
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?search={{ search_query }}&category=Home and Lifestyle">Home & Lifestyle</a>
                 </li>
                 <li class="list-group-item {% if selected_category == 'Electronic Devices' %}active-category{% endif %}">
-                    <a style="color: green;" href="{% url 'products:products-listing' %}?category=Electronic Devices">Electronic Devices</a>
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?search={{ search_query }}&category=Electronic Devices">Electronic Devices</a>
                 </li>
                 <li class="list-group-item {% if selected_category == 'Home Appliances' %}active-category{% endif %}">
-                    <a style="color: green;" href="{% url 'products:products-listing' %}?category=Home Appliances">Home Appliances</a>
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?search={{ search_query }}&category=Home Appliances">Home Appliances</a>
                 </li>
                 <li class="list-group-item {% if selected_category == 'Sports and Outdoor' %}active-category{% endif %}">
-                    <a style="color: green;" href="{% url 'products:products-listing' %}?category=Sports and Outdoor">Sports & Outdoor</a>
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?search={{ search_query }}&category=Sports and Outdoor">Sports & Outdoor</a>
                 </li>
                 <li class="list-group-item {% if selected_category == 'Men Fashion' %}active-category{% endif %}">
-                    <a style="color: green;" href="{% url 'products:products-listing' %}?category=Men Fashion">Men’s Fashion</a>
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?search={{ search_query }}&category=Men Fashion">Men’s Fashion</a>
+                </li>
+                <li class="list-group-item {% if selected_category == 'Mobile and Accessories' %}active-category{% endif %}">
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?search={{ search_query }}&category=Mobile and Accessories">Mobile and Accessories</a>
                 </li>
             </ul>
         </div>
 
         <div class="col-md-9">
-            <h4>Search Results for <mark>{{ search_query }}</mark></h4>
+            <h4>Search Results for <mark>{{ search_query }}</mark> - {{ no_results }} results found!</h4>
             <div class="row">
                 {% for product in search_results %}
                 <div class="col-md-4">
@@ -41,7 +44,11 @@ Search - {{ search_query }}
                         <a href="{% url 'products:detail' product.id %}">
                             <img 
                                 class="card-img-top"
-                                src="{{ product.image.url }}" 
+                                {% if product.image_url %}
+                                    src="{{ product.image_url }}" 
+                                {% else %}
+                                    src="{{ product.image.url }}"
+                                {% endif %}
                                 alt="{{ product.name }}"
                                 style="height: 300px; object-fit: cover;"
                             >
@@ -58,7 +65,25 @@ Search - {{ search_query }}
             </div>
             <div class="row">
                 <div class="col d-flex justify-content-center">
-                    {% bootstrap_pagination page_obj %}
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?search={{ search_query }}{% if selected_category %}&category={{ selected_category }}{% endif %}&page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?search={{ search_query }}{% if selected_category %}&category={{ selected_category }}{% endif %}&page={{ num }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?search={{ search_query }}{% if selected_category %}&category={{ selected_category }}{% endif %}&page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
         </div>
