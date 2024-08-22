@@ -1,10 +1,11 @@
 from django.contrib import admin, messages
 from django.utils.translation import ngettext
 from django.utils.translation import gettext_lazy as _
-from django.urls import path
+from django.urls import path, reverse
 from django.shortcuts import render
 from django import forms
 from django.core.files.storage import default_storage
+from django.http import HttpResponseRedirect
 from io import StringIO
 
 from .models import Product, Category, ReviewRating
@@ -122,6 +123,8 @@ class ProductAdmin(admin.ModelAdmin):
 
             file_path = default_storage.save(f"temp/{csv_file.name}", csv_data)
             update_add_products_from_csv.delay(file_path)
+            url = reverse("admin:index")
+            return HttpResponseRedirect(url)
 
         form = CSVImportForm()
         context = {"form": form}

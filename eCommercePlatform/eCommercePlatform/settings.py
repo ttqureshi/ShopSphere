@@ -166,7 +166,7 @@ from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     "send-daily-order-summary": {
         "task": "users.tasks.send_daily_order_summary",
-        "schedule": crontab(hour=13, minute=0),
+        "schedule": crontab(hour=14, minute=57),
     },
 }
 
