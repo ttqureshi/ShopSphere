@@ -34,7 +34,7 @@ class RegisterView(View):
 
 
 class ProfileView(LoginRequiredMixin, View):
-    login_url = "/login"
+    login_url = "/users/login"
 
     def post(self, request):
         user_form = UserUpdateForm(request.POST, instance=request.user)
@@ -66,7 +66,7 @@ class ProfileView(LoginRequiredMixin, View):
 
 
 class CartView(LoginRequiredMixin, DetailView):
-    login_url = "/login"
+    login_url = "/users/login"
 
     model = Cart
     template_name = "users/cart.html"
@@ -85,7 +85,7 @@ class CartView(LoginRequiredMixin, DetailView):
 
 
 class AddToCartView(LoginRequiredMixin, View):
-    login_url = "/login"
+    login_url = "/users/login"
 
     def post(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
@@ -107,7 +107,7 @@ class AddToCartView(LoginRequiredMixin, View):
 
 
 class UpdateCartItemView(LoginRequiredMixin, View):
-    login_url = "/login"
+    login_url = "/users/login"
 
     def post(self, request, product_id):
         cart = Cart.objects.get(user=request.user)
@@ -129,7 +129,7 @@ class UpdateCartItemView(LoginRequiredMixin, View):
 
 
 class RemoveItemView(LoginRequiredMixin, View):
-    login_url = "/login"
+    login_url = "/users/login"
 
     def post(self, request, product_id):
         cart = Cart.objects.get(user=request.user)
@@ -139,7 +139,7 @@ class RemoveItemView(LoginRequiredMixin, View):
 
 
 class CheckoutView(LoginRequiredMixin, FormView):
-    login_url = "/login"
+    login_url = "/users/login"
 
     template_name = "users/checkout.html"
     form_class = OrderForm
@@ -185,7 +185,7 @@ class CheckoutView(LoginRequiredMixin, FormView):
 
 
 class OrderListView(LoginRequiredMixin, ListView):
-    login_url = "/login"
+    login_url = "/users/login"
 
     model = Order
     template_name = "users/order_history.html"
@@ -196,7 +196,7 @@ class OrderListView(LoginRequiredMixin, ListView):
 
 
 class OrderDetailView(LoginRequiredMixin, DetailView):
-    login_url = "/login"
+    login_url = "/users/login"
 
     model = Order
     template_name = "users/order_detail.html"
