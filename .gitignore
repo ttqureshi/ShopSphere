@@ -5,3 +5,6 @@ django-env
 __pycache__/
 .env
 products.csv
+db.sqlite3
+dump.rdb
+celerybeat-schedule.db

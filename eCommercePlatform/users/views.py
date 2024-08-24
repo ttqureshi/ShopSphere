@@ -10,10 +10,15 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.db import transaction
+from django.views.decorators.http import require_POST
+from django.urls import reverse
+import stripe
+import time
+from django.conf import settings
 
 from .forms import UserRegisterForm, OrderForm, UserUpdateForm
 from products.models import Product
-from .models import Cart, CartItem, Order, OrderItem
+from .models import Cart, CartItem, Order, OrderItem, Payment
 from .tasks import send_sms
 
 
@@ -168,20 +173,66 @@ class CheckoutView(LoginRequiredMixin, FormView):
             order.total_price = total_price
             order.save()
 
-            for cart_item in items:
-                OrderItem.objects.create(
-                    order=order, product=cart_item.product, quantity=cart_item.quantity
+            payment = Payment(order=order, amount=total_price, user=self.request.user)
+            payment.save()
+
+            stripe.api_key = settings.STRIPE_PRIVATE_KEY
+            intent = stripe.PaymentIntent.create(
+                amount=int(payment.amount * 100),
+                currency="usd",
+                automatic_payment_methods={"enabled": True},
+                metadata={"payment_id": payment.id},
+            )
+
+        return redirect("users:process-payment", client_secret=intent.client_secret)
+
+
+def process_payment(request, client_secret):
+    if request.method == "POST":
+        stripe.api_key = settings.STRIPE_PRIVATE_KEY
+        try:
+            payment_intent_id = (
+                client_secret.split("_")[0] + "_" + client_secret.split("_")[1]
+            )
+            time.sleep(1)
+            intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+
+            if intent.status == "succeeded":
+                payment_id = intent.metadata["payment_id"]
+                payment = Payment.objects.get(id=payment_id)
+                payment.paid = True
+                payment.save()
+
+                cart = get_object_or_404(Cart, user=payment.user)
+                items = cart.cartitem_set.select_related("product").all()
+                order = payment.order
+
+                for cart_item in items:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=cart_item.product,
+                        quantity=cart_item.quantity,
+                    )
+                    product = Product.objects.get(id=cart_item.product.id)
+                    product.stock -= cart_item.quantity
+                    product.save()
+                cart.cartitem_set.all().delete()
+                messages.success(request, "Payment successful!")
+                send_sms.delay(order.id)
+                return render(
+                    request, "users/order_confirmation.html", {"order": order}
                 )
-                product = Product.objects.get(id=cart_item.product.id)
-                product.stock -= cart_item.quantity
-                product.save()
+            else:
+                messages.error(
+                    request,
+                    f"Couldn't process payment. Please check your credentials and try again",
+                )
 
-            cart.cartitem_set.all().delete()
-        
-        transaction.on_commit(lambda: messages.success(self.request, "Thank you for your order!"))
-        send_sms.delay(order.id)
+        except stripe.error.StripeError as e:
+            messages.error(request, f"Payment failed: {e.user_message}")
 
-        return render(self.request, "users/order_confirmation.html", {"order": order})
+    context = {"client_secret": client_secret}
+    return render(request, "users/process_payment.html", context)
 
 
 class OrderListView(LoginRequiredMixin, ListView):

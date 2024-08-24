@@ -37,13 +37,13 @@ Checkout
         <form action="{% url "users:checkout" %}" method="post">
             {% csrf_token %}
             {% bootstrap_form form %}
-            <button type="submit" class="btn btn-success">Place Order</button>
+            <button type="submit" class="btn btn-success">Proceed to Payment</button>
         </form>
     {% else %}
         <form action="{% url "users:checkout" %}" method="post">
             {% csrf_token %}
             {% bootstrap_form form %}
-            <button type="submit" class="btn btn-success disabled">Place Order</button>
+            <button type="submit" class="btn btn-success disabled">Proceed to Payment</button>
         </form>
     {% endif %}
     <br><br><br>
