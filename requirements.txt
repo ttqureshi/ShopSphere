@@ -10,3 +10,5 @@ django-environ
 stripe
 dj-stripe
 django-stripe-payments
+cryptography
+django-allauth
