@@ -1,11 +1,13 @@
 {% extends "layout.html" %}
 {% load django_bootstrap5 %}
+{% load cache %}
 
 {% block title %}
 Search - {{ search_query }}
 {% endblock %}
 
 {% block content %}
+{% cache 900 search search_query search_results %}
 <div class="container">
     <div class="row">
         <div class="col-md-3">
@@ -89,6 +91,7 @@ Search - {{ search_query }}
         </div>
     </div>
 </div>
+{% endcache %}
 <style>
     .list-group-item.active-category {
         background-color: darkgreen !important;

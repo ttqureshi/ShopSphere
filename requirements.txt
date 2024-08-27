@@ -12,3 +12,5 @@ dj-stripe
 django-stripe-payments
 cryptography
 django-allauth
+django-redis
+django-debug-toolbar

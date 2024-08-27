@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% load django_bootstrap5 %}
+{% load cache %}
 
 {% block title %}
 Products Listing
@@ -7,6 +8,15 @@ Products Listing
 
 {% block content %}
 <div class="container">
+    {% if messages %}
+    <div class="alert alert-dismissible fade show" role="alert">
+        {% for message in messages %}
+        <div class="alert alert-info">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     <div class="row">
         <div class="col-md-3">
             <h5>Categories</h5>
@@ -36,6 +46,8 @@ Products Listing
         </div>
 
         <div class="col-md-9">
+            <!-- Cache the product listing section with category and page as part of the key -->
+            {% cache 900 product_listing product_category request.GET.category request.GET.page %}
             <div class="row">
                 {% for product in product_list %}
                 <div class="col-md-4">
@@ -62,7 +74,9 @@ Products Listing
                 </div>
                 {% endfor %}
             </div>
+            {% endcache %}
 
+            <!-- Pagination controls outside of cache block -->
             <div class="row">
                 <div class="col d-flex justify-content-center">
                     {% bootstrap_pagination page_obj %}

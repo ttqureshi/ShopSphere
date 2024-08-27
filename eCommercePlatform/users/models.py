@@ -1,10 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
 from djstripe.models import StripeModel
-from djstripe.fields import StripeIdField
 import uuid
-
 
 from products.models import Product
 
