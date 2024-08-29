@@ -1,7 +1,7 @@
 from django.db.models.base import Model as Model
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,11 +10,8 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.db import transaction
-from django.http import HttpResponseNotFound, Http404
-from django.views.decorators.http import require_POST
-from django.http import JsonResponse
+from django.http import Http404
 from django.conf import settings
-from django.contrib.auth.forms import AuthenticationForm
 import stripe
 import time
 
@@ -29,11 +26,9 @@ class RegisterView(View):
     def post(self, request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            login(request, form.save(), backend="django.contrib.auth.backends.ModelBackend")
             user = form.save()
-            login(request, user)
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             token = generate_jwt(user.id)
-            #### FIGURE OUT!! how this token be attached to a user so that it is sent in subsequent requests made by that user
             cart = Cart(user=request.user)
             cart.save()
             return redirect("products:products-listing")
@@ -85,8 +80,6 @@ class CartView(LoginRequiredMixin, DetailView):
     context_object_name = "cart"
 
     def get_object(self, queryset=None):
-        cart, _ = Cart.objects.get_or_create(user=self.request.user)
-        return cart
         cart, _ = Cart.objects.get_or_create(user=self.request.user)
         return cart
 
