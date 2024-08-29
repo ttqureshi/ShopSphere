@@ -14,3 +14,4 @@ cryptography
 django-allauth
 django-redis
 django-debug-toolbar
+coverage

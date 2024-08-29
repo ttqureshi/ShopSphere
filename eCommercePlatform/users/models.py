@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from djstripe.models import StripeModel
+from django.core.exceptions import ValidationError
 import uuid
 
 from products.models import Product
@@ -32,6 +33,12 @@ class Order(models.Model):
     state = models.CharField(max_length=15)
     zipcode = models.CharField(max_length=10)
     country = models.CharField(max_length=20)
+    status = models.CharField(max_length=1, default="P")
+
+    def save(self, *args, **kwargs):
+        if  self.status!="P" and not self.orderitem_set.exists():
+            raise ValidationError("An order must have at least one order item.")
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username} placed on {self.order_date}"

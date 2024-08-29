@@ -10,8 +10,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.db import transaction
-from django.views.decorators.http import require_POST
-from django.urls import reverse
+from django.http import HttpResponseNotFound, Http404
 import stripe
 import time
 from django.conf import settings
@@ -26,7 +25,7 @@ class RegisterView(View):
     def post(self, request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            login(request, form.save())
+            login(request, form.save(), backend="django.contrib.auth.backends.ModelBackend")
             cart = Cart(user=request.user)
             cart.save()
             return redirect("products:products-listing")
@@ -217,6 +216,8 @@ def process_payment(request, client_secret):
                     product.stock -= cart_item.quantity
                     product.save()
                 cart.cartitem_set.all().delete()
+                order.status = "D"
+                order.save()
                 messages.success(request, "Payment successful!")
                 send_sms.delay(order.id)
                 return render(
@@ -255,4 +256,8 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
     def get_object(self):
         order_id = self.kwargs.get("order_id")
-        return get_object_or_404(Order, id=order_id)
+        order = get_object_or_404(Order, id=order_id)
+        if order and order.user == self.request.user:
+            return order
+        else:
+            raise Http404
