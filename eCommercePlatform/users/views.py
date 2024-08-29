@@ -222,8 +222,6 @@ def process_payment(request, client_secret):
                 cart.cartitem_set.all().delete()
                 order.status = "D"
                 order.save()
-                order.status = "D"
-                order.save()
                 messages.success(request, "Payment successful!")
                 send_sms.delay(order.id)
                 return render(
