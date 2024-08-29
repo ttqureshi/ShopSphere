@@ -63,21 +63,21 @@ class ProductSearchView(generic.ListView):
 
 class SubmitReviewView(View):
     def post(self, request, product_id):
-        url = request.META.get("HTTP_REFERER")
+        url = request.META.get("HTTP_REFERER", "/")
         try:
             review = ReviewRating.objects.get(
                 user__id=request.user.id, product__id=product_id
             )
             form = ReviewForm(request.POST, instance=review)
             form.save()
-            messages.success(request, "Thanks You! Your review has been updated")
-            return redirect(url)
+            messages.success(request, "Thank you! Your review has been updated.")
         except ReviewRating.DoesNotExist:
             form = ReviewForm(request.POST)
             if form.is_valid():
                 data = form.save(commit=False)
-                data.product = Product.objects.get(id=product_id)
-                data.user = User.objects.get(id=request.user.id)
+                data.product_id = product_id
+                data.user = request.user
                 data.save()
-                messages.success(request, "Thank You! Your review has been submitted.")
-                return redirect(url)
+                messages.success(request, "Thank you! Your review has been submitted.")
+
+        return redirect(url)

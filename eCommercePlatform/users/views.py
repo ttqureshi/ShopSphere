@@ -1,7 +1,7 @@
 from django.db.models.base import Model as Model
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,23 +10,30 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.db import transaction
+from django.http import HttpResponseNotFound, Http404
 from django.views.decorators.http import require_POST
-from django.urls import reverse
+from django.http import JsonResponse
+from django.conf import settings
+from django.contrib.auth.forms import AuthenticationForm
 import stripe
 import time
-from django.conf import settings
 
 from .forms import UserRegisterForm, OrderForm, UserUpdateForm
 from products.models import Product
 from .models import Cart, CartItem, Order, OrderItem, Payment
 from .tasks import send_sms
+from .utils.jwt_helper import generate_jwt
 
 
 class RegisterView(View):
     def post(self, request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            login(request, form.save())
+            login(request, form.save(), backend="django.contrib.auth.backends.ModelBackend")
+            user = form.save()
+            login(request, user)
+            token = generate_jwt(user.id)
+            #### FIGURE OUT!! how this token be attached to a user so that it is sent in subsequent requests made by that user
             cart = Cart(user=request.user)
             cart.save()
             return redirect("products:products-listing")
@@ -78,7 +85,10 @@ class CartView(LoginRequiredMixin, DetailView):
     context_object_name = "cart"
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Cart, user=self.request.user)
+        cart, _ = Cart.objects.get_or_create(user=self.request.user)
+        return cart
+        cart, _ = Cart.objects.get_or_create(user=self.request.user)
+        return cart
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -217,6 +227,8 @@ def process_payment(request, client_secret):
                     product.stock -= cart_item.quantity
                     product.save()
                 cart.cartitem_set.all().delete()
+                order.status = "D"
+                order.save()
                 messages.success(request, "Payment successful!")
                 send_sms.delay(order.id)
                 return render(
@@ -255,4 +267,8 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
     def get_object(self):
         order_id = self.kwargs.get("order_id")
-        return get_object_or_404(Order, id=order_id)
+        order = get_object_or_404(Order, id=order_id)
+        if order and order.user == self.request.user:
+            return order
+        else:
+            raise Http404
