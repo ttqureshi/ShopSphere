@@ -6,7 +6,7 @@ from .models import Order, OrderItem, Cart, CartItem
 
 class ExportCsvMixin:
     def export_as_csv(self, request, queryset):
-        order_field_names = ['id', 'user', 'order_date', 'total_price', 'full_name', 'contact_no', 'address', 'city', 'state', 'zipcode', 'country']
+        order_field_names = ['id', 'user', 'order_date', 'total_price', 'full_name', 'contact_no', 'address', 'city', 'state', 'zipcode', 'country', 'status']
         order_item_field_names = ['product', 'quantity', 'total_price']
 
         response = HttpResponse(content_type='text/csv')

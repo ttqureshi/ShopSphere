@@ -21,6 +21,9 @@ class OrderForm(forms.ModelForm):
 
 
 class UserUpdateForm(forms.ModelForm):
+    username = forms.CharField(required=True)
+    email = forms.EmailField(required=True)
+
     class Meta:
         model = User
         fields = ["username", "email"]
