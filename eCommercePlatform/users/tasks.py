@@ -21,7 +21,7 @@ def send_daily_order_summary():
                 summary += f"\tItem: {order_item.product.name}\n\t"
                 summary += f"Unit Price: Rs. {order_item.product.price}\n\t"
                 summary += f"Quantity: {order_item.quantity}\n\n"
-            summary += f"Total Amount: Rs. {order_item.total_price}\n"
+            summary += f"Total Amount: Rs. {order.total_price}\n"
             summary += "------------------------------\n"
     mail_subject = "Daily Orders Summary"
 

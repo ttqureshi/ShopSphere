@@ -8,3 +8,4 @@ products.csv
 db.sqlite3
 dump.rdb
 celerybeat-schedule.db
+wait-for-it.sh
