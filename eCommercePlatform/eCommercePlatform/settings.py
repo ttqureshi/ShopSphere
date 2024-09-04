@@ -41,7 +41,9 @@ INTERNAL_IPS = [
 env = environ.Env(DEBUG=(bool, False))
 
 # Explicitly specify the path to the .env file
-env.read_env(os.path.join(os.path.dirname(__file__), "..", ".env"))
+env_file = os.path.join(os.path.dirname(__file__), "..", ".env")
+if os.path.exists(env_file):
+    env.read_env(env_file)
 
 SECRET_KEY = env("SECRET_KEY")
 ACCOUNT_SSID = env("MY_ACCOUNT_SID")
