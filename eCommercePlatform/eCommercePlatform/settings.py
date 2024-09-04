@@ -45,7 +45,7 @@ env_file = os.path.join(os.path.dirname(__file__), "..", ".env")
 if os.path.exists(env_file):
     env.read_env(env_file)
 
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = "django-insecure-uhl#77f*n&(xfnq2v+f6_=qv+dkmvn$4n9x!hxa3a17uh47e(="
 ACCOUNT_SSID = env("MY_ACCOUNT_SID")
 AUTH_TOKEN = env("TWILIO_AUTH_TOKEN")
 TWILIO_NUMBER = env("MY_TWILIO_NUMBER")
