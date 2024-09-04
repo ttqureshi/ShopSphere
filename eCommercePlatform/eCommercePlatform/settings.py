@@ -23,12 +23,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["fz2qjhmmp2.ap-south-1.awsapprunner.com", "localhost", "127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = [
+    'https://fz2qjhmmp2.ap-south-1.awsapprunner.com'
+]
 
 INTERNAL_IPS = [
     '127.0.0.1',
@@ -178,14 +181,35 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REDIS_HOST = os.getenv('REDIS_HOST', "13.61.10.250")
+REDIS_PORT = os.getenv('REDIS_PORT', 6379)
+
 CACHES = {
     'default': {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis:6379/1",
+        "LOCATION": f'redis://{REDIS_HOST}:{REDIS_PORT}/1',
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
     }
+}
+
+# CELERY SETTINGS
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Karachi"
+
+# CELERY Beat
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "send-daily-order-summary": {
+        "task": "users.tasks.send_daily_order_summary",
+        "schedule": crontab(hour=15, minute=34),
+    },
 }
 
 
@@ -216,24 +240,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# CELERY SETTINGS
-CELERY_BROKER_URL = "redis://redis:6379/0"
-CELERY_RESULT_BACKEND = "redis://redis:6379/0"
-CELERY_ACCEPT_CONTENT = ["application/json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_TIMEZONE = "Asia/Karachi"
-
-# CELERY Beat
-from celery.schedules import crontab
-
-CELERY_BEAT_SCHEDULE = {
-    "send-daily-order-summary": {
-        "task": "users.tasks.send_daily_order_summary",
-        "schedule": crontab(hour=15, minute=34),
-    },
-}
 
 # SMTP SETTINGS
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
