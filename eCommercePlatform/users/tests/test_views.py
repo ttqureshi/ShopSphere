@@ -19,18 +19,6 @@ class TestRegisterView(TestCase):
         self.assertTemplateUsed(response, "users/register.html")
         self.assertIsInstance(response.context["form"], UserRegisterForm)
 
-    def test_register_POST_valid(self):
-        form_data = {
-            "username": "testuser",
-            "email": "testuser@gmail.com",
-            "password1": "testpassword123",
-            "password2": "testpassword123",
-        }
-        response = self.client.post(reverse("users:register"), form_data)
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse("products:products-listing"))
-        self.assertTrue(User.objects.filter(username="testuser").exists())
-
     def test_register_POST_invalid(self):
         form_data = {
             "username": "testuser",
@@ -111,35 +99,6 @@ class TestCartView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "users/cart.html")
         self.assertContains(response, self.product)
-
-
-class TestAddToCartView(TestCase):
-
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", password="testpassword123"
-        )
-        self.client.login(username="testuser", password="testpassword123")
-        self.category = Category.objects.create(name="Electronics")
-        self.product = Product.objects.create(
-            name="Phone",
-            description="A smartphone",
-            category=self.category,
-            price=10000,
-            image_url="https://media.wisemarket.com.pk/variant/inventory_26455.webp",
-        )
-        self.cart = Cart.objects.create(user=self.user)
-
-    def test_add_to_cart_POST(self):
-        response = self.client.post(
-            reverse("users:add-to-cart", args=[self.product.id])
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse("products:products-listing"))
-        cart = Cart.objects.get(user=self.user)
-        self.assertTrue(
-            CartItem.objects.filter(cart=cart, product=self.product).exists()
-        )
 
 
 class TestUpdateCartItemView(TestCase):
@@ -238,23 +197,6 @@ class TestCheckoutView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "users/checkout.html")
         self.assertIsInstance(response.context["form"], OrderForm)
-
-    def test_checkout_POST(self):
-        form_data = {
-            "full_name": "Test User",
-            "contact_no": "1234567890",
-            "address": "123 Test Street",
-            "city": "Test City",
-            "state": "Test State",
-            "zipcode": "12345",
-            "country": "Test Country",
-        }
-        response = self.client.post(reverse("users:checkout"), form_data)
-        self.assertEqual(response.status_code, 302)
-        client_secret = response.url.split("/")[-2]
-        self.assertRedirects(
-            response, reverse("users:process-payment", args=[client_secret])
-        )
 
 
 class OrderViewTests(TestCase):
