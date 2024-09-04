@@ -27,7 +27,6 @@ class RegisterView(View):
         if form.is_valid():
             user = form.save()
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-            token = generate_jwt(user.id)
             cart = Cart(user=request.user)
             cart.save()
             return redirect("products:products-listing")
