@@ -19,7 +19,6 @@ from .forms import UserRegisterForm, OrderForm, UserUpdateForm
 from products.models import Product
 from .models import Cart, CartItem, Order, OrderItem, Payment
 from .tasks import send_sms
-from .utils.jwt_helper import generate_jwt
 
 
 class RegisterView(View):
