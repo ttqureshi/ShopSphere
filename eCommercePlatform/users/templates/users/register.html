@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+    Register a New User
+{% endblock %}
+
+{% block content %}
+    <h1>Register a New User</h1>
+    <form action="{% url "users:register" %}" method="post">
+        {% csrf_token %} 
+        {% bootstrap_form form %}
+            <button type="submit" class="btn btn-success">Submit</button>
+        <p>
+            Already a user? <a href="{% url "users:login" %}">Login</a>
+        </p>
+    </form>
+{% endblock %}

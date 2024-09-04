@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+    Order Confirmation
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Order Confirmation</h2>
+    {% if messages %}
+        <div class="alert alert-success" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <h4>Order Details</h4>
+    <ul class="list-group">
+        <li class="list-group-item"><strong>Order ID:</strong> {{ order.id }}</li>
+        <li class="list-group-item"><strong>Full Name:</strong> {{ order.full_name }}</li>
+        <li class="list-group-item"><strong>Address:</strong> {{ order.address }}</li>
+        <li class="list-group-item"><strong>City:</strong> {{ order.city }}</li>
+        <li class="list-group-item"><strong>State:</strong> {{ order.state }}</li>
+        <li class="list-group-item"><strong>Zip Code:</strong> {{ order.zipcode }}</li>
+        <li class="list-group-item"><strong>Country:</strong> {{ order.country }}</li>
+    </ul>
+    <h4 class="mt-4">Purchased Items</h4>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.orderitem_set.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>Rs. {{ item.product.price }}</td>
+                <td>Rs. {{ item.total_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h4>Total: Rs. {{ order.total_price }}</h4>
+    <a href="{% url "users:orders" %}" class="btn btn-primary mt-3">View Order History</a>
+    <br><br><br>
+</div>
+{% endblock %}

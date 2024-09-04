@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Orders History
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Your Orders History</h2>
+    {% if messages %}
+        <div class="alert alert-warning" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Order No.</th>
+                <th>Date</th>
+                <th>Total Price</th>
+                <th>Order Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>
+                    {{ order.id }}
+                </td>
+                <td>{{ order.order_date }}</td>
+                <td>Rs. {{ order.total_price }}</td>
+                <td>
+                    <a href="{% url 'users:order-detail' order.id %}" class="btn btn-info btn-sm">View Order</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

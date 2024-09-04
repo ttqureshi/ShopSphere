@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+{{ product.name }} - Product Detail
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if messages %}
+        <div class="alert alert-warning" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-lg-6">
+            <img class="img-fluid rounded" src="{{ product.image.url }}" alt="{{ product.name }}">
+        </div>
+        <div class="col-lg-6">
+            <h1 class="display-4">{{ product.name }}</h1>
+
+            <div class="d-flex align-items-center mt-3">
+                <div class="h4 me-2">Average Rating:</div>
+                <div class="h4 text-warning">
+                    {% if product.avg_ratings %}
+                        {{ product.avg_ratings }}/5 ★
+                    {% else %}
+                        Not Rated
+                    {% endif %}
+                </div>
+            </div>
+
+            <p class="lead mt-3">{{ product.description }}</p>
+            <p class="h4">Price: {{ product.price }}</p>
+            
+            {% if product.stock %}
+                <form action="{% url 'users:add-to-cart' product.id %}" method="post" class="mt-4">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-lg btn-block">Add to Cart</button>
+                </form>
+            {% else %}
+                <form action="{% url 'users:add-to-cart' product.id %}" method="post" class="mt-4">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-lg btn-block disabled">Add to Cart</button>
+                </form>
+                <div class="alert alert-secondary mt-4" role="alert">
+                    Out of Stock! 🙁
+                </div>
+            {% endif %}
+
+            <header class="section-heading mt-5">
+                <h3>Leave Your Review</h3>
+            </header>
+            <form action="{% url "products:submit-review" product.id %}" method="post" class="mt-3">
+                {% csrf_token %}
+                <div class="rate">
+                    <input type="radio" name="rating" id="rating10" value="5" required>
+                    <label for="rating10" title="5 stars"></label>
+                    <input type="radio" name="rating" id="rating9" value="4.5" required>
+                    <label for="rating9" title="4.5 stars" class="half"></label>
+                    <input type="radio" name="rating" id="rating8" value="4" required>
+                    <label for="rating8" title="4 stars"></label>
+                    <input type="radio" name="rating" id="rating7" value="3.5" required>
+                    <label for="rating7" title="3.5 stars" class="half"></label>
+                    <input type="radio" name="rating" id="rating6" value="3" required>
+                    <label for="rating6" title="3 stars"></label>
+                    <input type="radio" name="rating" id="rating5" value="2.5" required>
+                    <label for="rating5" title="2.5 stars" class="half"></label>
+                    <input type="radio" name="rating" id="rating4" value="2" required>
+                    <label for="rating4" title="2 stars"></label>
+                    <input type="radio" name="rating" id="rating3" value="1.5" required>
+                    <label for="rating3" title="1.5 stars" class="half"></label>
+                    <input type="radio" name="rating" id="rating2" value="1" required>
+                    <label for="rating2" title="1 star"></label>
+                    <input type="radio" name="rating" id="rating1" value="0.5" required>
+                    <label for="rating1" title="0.5 stars" class="half"></label>
+                </div>
+                <div class="mb-3">
+                    <label for="review" class="form-label">Write your review:</label>
+                    <textarea name="review" class="form-control" id="review" rows="5"></textarea>
+                </div>
+                {% if user.is_authenticated %}
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                {% else %}
+                    <button type="submit" class="btn btn-primary disabled">Submit Review</button>
+                    <p class="text-muted">You must be logged in to post the review! <a href="{% url "users:login" %}">Login Now</a></p>
+                {% endif %}
+            </form>
+
+            <header class="section-heading mt-5">
+                <h3>Customer Reviews</h3>
+            </header>
+
+            <div class="mt-3">
+                {% for review in reviews %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ review.rating }} Stars</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">by {{ review.user.username }}</h6>
+                        <p class="card-text">{{ review.review }}</p>
+                        <p class="text-muted">Posted on {{ review.created_at|date:"F j, Y" }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No reviews yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

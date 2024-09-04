@@ -1,0 +1,74 @@
+<!-- users/templates/users/user_profile.html -->
+{% extends 'layout.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+    Profile
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-dismissible fade show" role="alert">
+        {% for message in messages %}
+        <div class="alert alert-info">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h3 class="card-title">User Information:</h3>
+            <p class="card-text"><strong>Username: </strong>{{ request.user.username }}</p>
+            <p class="card-text"><strong>Email: </strong>{{ request.user.email }}</p>
+        </div>
+    </div>
+
+    <hr>
+    <div>
+        <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapse" role="button">
+            Edit Profile
+        </a>
+    </div>
+    <div class="collapse mt-3" id="collapse">
+        <form method="post">
+            {% csrf_token %}
+            <h4>Edit Info</h4>
+            {% bootstrap_form user_form %}
+            {% bootstrap_form password_form %}
+            <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+    </div>
+
+    <h3 class="mt-5">Order History</h3>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Order Number</th>
+                <th>Order Date</th>
+                <th>Total Price</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in request.user.order_set.all %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.order_date }}</td>
+                <td>Rs. {{ order.total_price }}</td>
+                <td>
+                    <a href="{% url 'users:order-detail' order.id %}" class="btn btn-info btn-sm">View</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No orders to show here</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

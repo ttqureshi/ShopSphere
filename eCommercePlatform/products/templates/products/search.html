@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+Search - {{ search_query }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <h5>Categories</h5>
+            <ul class="list-group">
+                <li class="list-group-item {% if not selected_category %}active-category{% endif %}">
+                    <a style="color: green;" href="{% url 'products:products-listing' %}">All</a>
+                </li>
+                <li class="list-group-item {% if selected_category == 'Home and Lifestyle' %}active-category{% endif %}">
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?category=Home and Lifestyle">Home & Lifestyle</a>
+                </li>
+                <li class="list-group-item {% if selected_category == 'Electronic Devices' %}active-category{% endif %}">
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?category=Electronic Devices">Electronic Devices</a>
+                </li>
+                <li class="list-group-item {% if selected_category == 'Home Appliances' %}active-category{% endif %}">
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?category=Home Appliances">Home Appliances</a>
+                </li>
+                <li class="list-group-item {% if selected_category == 'Sports and Outdoor' %}active-category{% endif %}">
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?category=Sports and Outdoor">Sports & Outdoor</a>
+                </li>
+                <li class="list-group-item {% if selected_category == 'Men Fashion' %}active-category{% endif %}">
+                    <a style="color: green;" href="{% url 'products:products-listing' %}?category=Men Fashion">Men’s Fashion</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md-9">
+            <h4>Search Results for <mark>{{ search_query }}</mark></h4>
+            <div class="row">
+                {% for product in search_results %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <a href="{% url 'products:detail' product.id %}">
+                            <img 
+                                class="card-img-top"
+                                src="{{ product.image.url }}" 
+                                alt="{{ product.name }}"
+                                style="height: 300px; object-fit: cover;"
+                            >
+                        </a>
+                        <div class="card-body">
+                            <a style="color: green;" href="{% url 'products:detail' product.id %}">
+                                <h5 class="card-title">{{ product.name }}</h5>
+                            </a>
+                            <p class="card-text">Rs. {{ product.price }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="row">
+                <div class="col d-flex justify-content-center">
+                    {% bootstrap_pagination page_obj %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .list-group-item.active-category {
+        background-color: darkgreen !important;
+        color: white;
+    }
+    .list-group-item.active-category a {
+        color: white !important;
+    }
+</style>
+{% endblock %}
