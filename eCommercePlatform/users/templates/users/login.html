@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% load django_bootstrap5 %}
+{% load socialaccount %}
 
 {% block title %}
     User Login
@@ -11,8 +12,34 @@
         {% bootstrap_form form %}
         {% csrf_token %} <!--Cross Site Request Forgery => ensures that the form is being sumitted from our site and not from something pretending to be our site-->
         <button type="submit" class="btn btn-success">Submit</button>
-        <p>
-            New User? <a href="{% url "users:register" %}">Register</a>
-        </p>
     </form>
+    <br><p>OR</p>
+    <a href="{% provider_login_url 'google' %}" class="btn btn-outline-primary btn-google">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" style="height: 20px; margin-right: 8px;">
+        Sign in with Google
+    </a>
+    <br><br>
+    <p class="">
+        New User? <a href="{% url "users:register" %}">Register</a>
+    </p>
+
+    <style>
+        .btn-google {
+            background-color: #ffffff;
+            color: #4285f4;
+            border: 1px solid #4285f4;
+            display: inline-flex;
+            align-items: center;
+            font-weight: bold;
+            padding: 6px 12px;
+            text-decoration: none;
+        }
+    
+        .btn-google:hover {
+            background-color: #edf4fa;
+            border-color: #357ae8;
+            color: #357ae8;
+        }
+    </style>
+    
 {% endblock %}

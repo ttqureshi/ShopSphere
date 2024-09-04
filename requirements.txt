@@ -1,4 +1,0 @@
-django
-django-bootstrap5
-pillow
-django-admin-interface

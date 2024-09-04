@@ -1,5 +1,11 @@
 .DS_Store
 eCommercePlatform.pdf
-django-env
+django-env/
 *.pyc
 __pycache__/
+.env
+products.csv
+db.sqlite3
+dump.rdb
+celerybeat-schedule.db
+wait-for-it.sh

@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% load django_bootstrap5 %}
+{% load socialaccount %}
 
 {% block title %}
     Register a New User
@@ -10,9 +11,35 @@
     <form action="{% url "users:register" %}" method="post">
         {% csrf_token %} 
         {% bootstrap_form form %}
-            <button type="submit" class="btn btn-success">Submit</button>
-        <p>
-            Already a user? <a href="{% url "users:login" %}">Login</a>
-        </p>
+        <button type="submit" class="btn btn-success">Submit</button>
     </form>
+    <br>
+    <p>OR</p>
+    <a href="{% provider_login_url 'google' %}" class="btn btn-outline-primary btn-google">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" style="height: 20px; margin-right: 8px;">
+        Sign up with Google
+    </a>
+    <br><br>
+    <p>
+        Already a user? <a href="{% url "users:login" %}">Login</a>
+    </p>
+
+    <style>
+        .btn-google {
+            background-color: #ffffff;
+            color: #4285f4;
+            border: 1px solid #4285f4;
+            display: inline-flex;
+            align-items: center;
+            font-weight: bold;
+            padding: 6px 12px;
+            text-decoration: none;
+        }
+    
+        .btn-google:hover {
+            background-color: #edf4fa;
+            border-color: #357ae8;
+            color: #357ae8;
+        }
+    </style>
 {% endblock %}

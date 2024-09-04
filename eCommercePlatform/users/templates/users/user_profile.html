@@ -53,7 +53,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for order in request.user.order_set.all %}
+            {% for order in request.user.orders.all %}
             <tr>
                 <td>{{ order.id }}</td>
                 <td>{{ order.order_date }}</td>

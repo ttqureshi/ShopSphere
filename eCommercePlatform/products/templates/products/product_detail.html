@@ -16,7 +16,11 @@
     {% endif %}
     <div class="row">
         <div class="col-lg-6">
+            {% if product.image_url %}
+            <img class="img-fluid rounded" src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% else %}
             <img class="img-fluid rounded" src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% endif %}
         </div>
         <div class="col-lg-6">
             <h1 class="display-4">{{ product.name }}</h1>

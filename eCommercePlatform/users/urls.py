@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LoginView
 
@@ -32,6 +32,7 @@ urlpatterns = [
     ),
     path("remove-item/<int:product_id>", views.RemoveItemView.as_view(), name="remove-item"),
     path("checkout/", views.CheckoutView.as_view(), name="checkout"),
+    path('process-payment/<str:client_secret>/', views.process_payment, name='process-payment'),
     path("orders/", views.OrderListView.as_view(), name="orders"),
     path("order-detail/<int:order_id>", views.OrderDetailView.as_view(), name="order-detail"),
 ]
