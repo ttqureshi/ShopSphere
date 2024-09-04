@@ -1,0 +1,22 @@
+{% extends "admin/base_site.html" %}
+{% load django_bootstrap5 %}
+
+{% block extrastyle %}
+    {% bootstrap_css %}
+{% endblock %}
+
+{% block extrahead %}
+    {% bootstrap_javascript %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <form action="." method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {% bootstrap_form form layout='vertical' %}
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Upload File</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

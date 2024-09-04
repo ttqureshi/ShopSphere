@@ -3,3 +3,8 @@ eCommercePlatform.pdf
 django-env
 *.pyc
 __pycache__/
+.env
+products.csv
+db.sqlite3
+dump.rdb
+celerybeat-schedule.db

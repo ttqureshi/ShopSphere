@@ -1,8 +1,16 @@
 from django.contrib import admin, messages
 from django.utils.translation import ngettext
 from django.utils.translation import gettext_lazy as _
+from django.urls import path, reverse
+from django.shortcuts import render
+from django import forms
+from django.core.files.storage import default_storage
+from django.http import HttpResponseRedirect
+from io import StringIO
 
 from .models import Product, Category, ReviewRating
+from .tasks import update_add_products_from_csv
+
 
 class PriceFilter(admin.SimpleListFilter):
     title = _("price")
@@ -41,6 +49,7 @@ class PriceFilter(admin.SimpleListFilter):
         if self.value() == "Rs.20000":
             return queryset.filter(price__gte=20000.00)
 
+
 class RatingFilter(admin.SimpleListFilter):
     title = _("rating")
     parameter_name = "rating"
@@ -69,6 +78,11 @@ class RatingFilter(admin.SimpleListFilter):
         if self.value() == "equal-to-5":
             return queryset.filter(rating=5.0)
 
+
+class CSVImportForm(forms.Form):
+    upload_csv = forms.FileField()
+
+
 class ProductAdmin(admin.ModelAdmin):
     list_display = ["name", "price", "stock"]
     ordering = ["name"]
@@ -85,12 +99,41 @@ class ProductAdmin(admin.ModelAdmin):
                 "%d products stocks were successfully set to 0",
                 updated,
             )
-            %updated,
+            % updated,
             messages.SUCCESS,
         )
 
+    def get_urls(self):
+        urls = super().get_urls()
+        new_urls = [
+            path("upload-csv/", self.upload_csv),
+        ]
+        return new_urls + urls
+
+    def upload_csv(self, request):
+        if request.method == "POST":
+            if "upload_csv" not in request.FILES:
+                self.message_user(request, "No file was uploaded", messages.ERROR)
+                return render(
+                    request, "admin/upload_csv.html", {"form": CSVImportForm()}
+                )
+            csv_file = request.FILES["upload_csv"]
+            file_content = csv_file.read().decode("utf-8")
+            csv_data = StringIO(file_content)
+
+            file_path = default_storage.save(f"temp/{csv_file.name}", csv_data)
+            update_add_products_from_csv.delay(file_path)
+            url = reverse("admin:index")
+            return HttpResponseRedirect(url)
+
+        form = CSVImportForm()
+        context = {"form": form}
+        return render(request, "admin/upload_csv.html", context)
+
+
 class ReviewRatingAdmin(admin.ModelAdmin):
     list_filter = [RatingFilter]
+
 
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Category)

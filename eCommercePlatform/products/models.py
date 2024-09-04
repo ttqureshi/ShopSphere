@@ -6,6 +6,9 @@ from django.db.models import Avg
 class Category(models.Model):
     name = models.CharField(max_length=250)
 
+    class Meta:
+        verbose_name_plural = "Categories"
+
     def __str__(self):
         return self.name
 
@@ -15,7 +18,8 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField()
+    image = models.ImageField(blank=True, null=True)
+    image_url = models.URLField(blank=True, null=True)
     stock = models.IntegerField(default=1)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
 
@@ -28,7 +32,7 @@ class Product(models.Model):
         return average_rating if average_rating is not None else 0
 
 class ReviewRating(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     review = models.TextField(max_length=500, blank=True)
     rating = models.FloatField()

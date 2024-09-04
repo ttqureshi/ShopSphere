@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from djstripe.models import StripeModel
+from djstripe.fields import StripeIdField
+import uuid
+
 
 from products.models import Product
 
@@ -21,10 +25,11 @@ class CartItem(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="orders", on_delete=models.CASCADE)
     order_date = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     full_name = models.CharField(max_length=70)
+    contact_no = models.CharField(max_length=13, null=True)
     address = models.CharField(max_length=250)
     city = models.CharField(max_length=15)
     state = models.CharField(max_length=15)
@@ -46,3 +51,14 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product} (Order: {self.order.id})"
+
+class Payment(StripeModel):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    paid = models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f'{self.user.username} - {self.order.id}'
+

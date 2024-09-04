@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views import generic
 from django.views import View
+from django.db.models import Q
 
 from .models import Product, ReviewRating
 from .forms import ReviewForm
@@ -32,7 +33,7 @@ class ProductDetailView(generic.detail.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["reviews"] = ReviewRating.objects.filter(product=context['product'])
+        context["reviews"] = ReviewRating.objects.filter(product=context["product"])
         return context
 
 
@@ -46,12 +47,17 @@ class ProductSearchView(generic.ListView):
         queryset = super().get_queryset()
         search_query = self.request.GET.get("search")
         if search_query:
-            queryset = queryset.filter(description__icontains=search_query)
+            queryset = queryset.filter(
+                Q(description__icontains=search_query) | Q(name__icontains=search_query)
+            )
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["search_query"] = self.request.GET.get("search")
+        search_query = self.request.GET.get("search", "")
+        context["search_query"] = search_query
+        context["no_results"] = self.get_queryset().count()
+        context["selected_category"] = self.request.GET.get("category", "")
         return context
 
 

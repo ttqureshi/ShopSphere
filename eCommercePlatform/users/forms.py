@@ -14,9 +14,10 @@ class UserRegisterForm(UserCreationForm):
 
 
 class OrderForm(forms.ModelForm):
+    contact_no = forms.CharField(max_length=13, widget=forms.TextInput({ "placeholder": "+923000000000"}))
     class Meta:
         model = models.Order
-        fields = ["full_name", "address", "city", "state", "zipcode", "country"]
+        fields = ["full_name", "contact_no", "address", "city", "state", "zipcode", "country"]
 
 
 class UserUpdateForm(forms.ModelForm):
